@@ -1,75 +1,90 @@
-var signupBtn=document.getElementById("signupBtn");
+var signupBtn = document.getElementById("signupBtn");
 
-var username=document.getElementById("name");
-var email=document.getElementById("email");
-var password=document.getElementById("password");
+var username = document.getElementById("name");
+var email = document.getElementById("email");
+var password = document.getElementById("password");
 
+var successMSG = document.getElementById('successMSG');
 
-var userdata={
-    username:username.value,
-    email:email.value,
-    password:password.value
+var usersList = [];
+
+signupBtn.addEventListener('click', function () {
+    CheckVal(username.value, email.value, password.value);
+});
+
+function CheckVal(username, email, password) {
+    if (username == '' || email == '' || password == '') {
+       
+        successMSG.innerHTML = 'Please fill all fields';
+        successMSG.style.color = 'red';
+        successMSG.style.display = 'block';
+
+    } else {
+        ValidateEmail(email);
+    }
 }
 
-var userslist=[]
 
-signupBtn.addEventListener('click', function()
-{
-    var isFullData=CheckVal(username.value,
-        email.value,
-        password.value
-    )
+function ValidateEmail(email) {
+    var regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (regex.test(email) == true) {
+        CheckEmailPresence(email);
+    }
+    else {
+        
+        successMSG.innerHTML = 'Invalid email';
+        successMSG.style.color = 'red';
+        successMSG.style.display = 'block';
+    }
+}
 
-    if(isFullData)
+
+function InsertDataIntoList(username, email, password) {
+    var userdata = {
+        username: username,
+        email: email,
+        password: password
+    };
+
+    if (JSON.parse(localStorage.getItem('usersList')) == null ||
+        JSON.parse(localStorage.getItem('usersList') == undefined)) {
+        usersList = [];
+    }
+
+    usersList.push(userdata);
+
+    localStorage.setItem('usersList', JSON.stringify(usersList));
+    
+    successMSG.innerHTML = 'User registered successfully';
+    successMSG.style.display = 'block';
+    successMSG.style.color = 'green';
+}
+
+function CheckEmailPresence(email) {
+    var isEmailPresent = false;
+    
+    if (JSON.parse(localStorage.getItem('usersList')) != null
+        || JSON.parse(localStorage.getItem('usersList')) != undefined) 
     {
-        var isEmailValid=ValidateEmail(email.value)
-        console.log('email is '+email.value)
-        console.log("Email validation "+isEmailValid)
+        usersList = JSON.parse(localStorage.getItem('usersList'));
 
-        if(isEmailValid)
-        {
-            InsertDataIntoList(username.value,email.value,password.value)
+        for (var i = 0; i < usersList.length; i++) {
+            if (usersList[i].email == email) {
+                
+                successMSG.innerHTML = 'Email already registered ' + email;
+                successMSG.style.display = 'block';
+                successMSG.style.color = 'red';
+                successMSG.style.display = 'block';
+                isEmailPresent = true;
+                break;
+            }
         }
-        else
-        {            
-            alert("Enter a valid email xxxxxx@xxxxx.com")
+
+        if (!isEmailPresent) {
+            InsertDataIntoList(username.value, email, password.value);
         }
     }
-    else
-    {
-        alert('Please fill all fields')
+    else {
+        InsertDataIntoList(username.value, email, password.value);
     }
-})
-
-function CheckVal(username,email,password)
-{
-    if(username==''
-        || email==''
-        || password=='')
-    {
-        return false;
-    }
-    else 
-        return true;    
-}
-
-function ValidateEmail(email)
-{
-    var regex=/^([A-Z]|[a-z]){1,20}\@[a-z]{3,10}\.com$/
-        if(regex.test(email)==true)
-    {
-        return true;
-    }
-    else
-        return false;
-}
-
-function InsertDataIntoList(username,email,password)
-{
-    userdata.email=email
-    userdata.username=username
-    userdata.password=password
-
-    userslist.push(userdata)
-    localStorage.setItem('userlist',JSON.stringify(userslist))
 }
